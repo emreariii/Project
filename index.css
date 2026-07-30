@@ -1,0 +1,3 @@
+/* Tailwind'in tamamını getiren tek satır.
+   main.jsx içinde "import './index.css'" ile çağrılıyor. */
+@import "tailwindcss";
