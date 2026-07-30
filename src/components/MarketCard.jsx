@@ -1,66 +1,37 @@
-function MarketCard({ title, symbol, buyPrice, sellPrice, changePercent, trend, typeLabel }) {
-  const isUp = trend === "up" || Number(changePercent) > 0;
-  const isDown = trend === "down" || Number(changePercent) < 0;
-
-  const displaySymbol = symbol === "PC" ? "ÇEYREK ALTIN" : symbol;
+function MarketCard({ title, symbol, buyPrice, sellPrice, changePercent }) {
+  const isPositive = Number(changePercent) >= 0;
 
   return (
-    <div
-      className="notranslate relative overflow-hidden rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition-all hover:shadow-md hover:-translate-y-0.5"
-      translate="no"
-    >
+    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <span
-            className="notranslate text-xs font-bold uppercase tracking-wider text-slate-400"
-            translate="no"
-          >
-            {displaySymbol}
-          </span>
-          <h3
-            className="notranslate text-base font-bold text-slate-900 leading-tight mt-0.5"
-            translate="no"
-          >
-            {title}
-          </h3>
+          <h3 className="text-sm text-slate-500">{title}</h3>
+
+          <p className="mt-1 text-xs font-semibold uppercase text-slate-400">
+            {symbol}
+          </p>
         </div>
 
         <span
-          className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-bold ${
-            isUp
-              ? "bg-emerald-100 text-emerald-700"
-              : isDown
-              ? "bg-rose-100 text-rose-700"
-              : "bg-slate-100 text-slate-600"
-          }`}
+          className={
+            isPositive
+              ? "rounded-full bg-green-100 px-3 py-1 text-sm font-medium text-green-700"
+              : "rounded-full bg-red-100 px-3 py-1 text-sm font-medium text-red-700"
+          }
         >
-          {isUp ? "▲ +" : isDown ? "▼ " : "• "}
+          {isPositive ? "+" : ""}
           {changePercent}%
         </span>
       </div>
 
-      <div className="mt-4 grid grid-cols-2 gap-3 border-t border-slate-100 pt-3">
-        <div>
-          <span className="text-xs text-slate-400 font-medium">Alış</span>
-          <p className="text-sm font-bold text-slate-900 tabular-nums">
-            {Number(buyPrice).toLocaleString("tr-TR", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 4,
-            })}{" "}
-            ₺
-          </p>
-        </div>
+      <div className="mt-5 space-y-2">
+        <p className="text-lg font-bold text-slate-900">
+          Alış: {Number(buyPrice).toLocaleString("tr-TR")} TL
+        </p>
 
-        <div className="text-right">
-          <span className="text-xs text-slate-400 font-medium">Satış</span>
-          <p className="text-sm font-bold text-indigo-600 tabular-nums">
-            {Number(sellPrice).toLocaleString("tr-TR", {
-              minimumFractionDigits: 2,
-              maximumFractionDigits: 4,
-            })}{" "}
-            ₺
-          </p>
-        </div>
+        <p className="text-lg font-semibold text-slate-700">
+          Satış: {Number(sellPrice).toLocaleString("tr-TR")} TL
+        </p>
       </div>
     </div>
   );

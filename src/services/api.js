@@ -1,5 +1,4 @@
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://doviz-altin-takip-paneli.onrender.com";
+const API_BASE_URL = "http://localhost:8080";
 
 function convertRangeToDays(range) {
   if (range === "1d") return 1;
@@ -10,20 +9,14 @@ function convertRangeToDays(range) {
 }
 
 export function normalizePriceRecord(record) {
-  const changeAmt = Number(record.fark) || 0;
-  const changePct = Number(record.gunluk_degisim_yuzde) || 0;
-
   return {
     id: record.id,
     symbol: record.kod,
-    name: record.aciklama ? record.aciklama.trim() : record.kod,
+    name: record.aciklama,
     type: record.kategori,
-    typeLabel: record.kategori === "currency" ? "Döviz" : record.kategori === "gold" ? "Altın" : "Diğer",
-    buyPrice: Number(record.alis) || 0,
-    sellPrice: Number(record.satis) || 0,
-    changeAmount: changeAmt,
-    changePercent: changePct,
-    trend: changePct > 0 ? "up" : changePct < 0 ? "down" : "same",
+    buyPrice: record.alis,
+    sellPrice: record.satis,
+    changePercent: 0,
     updatedAt: record.guncelleme_zamani,
     createdAt: record.created_at,
   };

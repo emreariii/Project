@@ -8,10 +8,11 @@ import ErrorMessage from "../components/ErrorMessage";
 
 function Markets() {
   const [markets, setMarkets] = useState([]);
+  const [selectedType, setSelectedType] = useState("all");
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { liveData, socketStatus, statusText, lastUpdate } = useMarketSocket();
+  const { liveData, socketStatus } = useMarketSocket();
 
   useEffect(() => {
     const fetchMarkets = async () => {
@@ -37,6 +38,11 @@ function Markets() {
     }
   }, [liveData]);
 
+  const filteredMarkets =
+    selectedType === "all"
+      ? markets
+      : markets.filter((market) => market.type === selectedType);
+
   if (loading) {
     return <Loading text="Piyasa verileri yükleniyor..." />;
   }
@@ -45,30 +51,33 @@ function Markets() {
     return <ErrorMessage message={errorMessage} />;
   }
 
-  const currencyCount = markets.filter((m) => m.type === "currency").length;
-  const goldCount = markets.filter((m) => m.type === "gold").length;
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-2xl bg-white p-6 border border-slate-200 shadow-xs">
+    <div>
+      <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Tüm Piyasalar</h1>
+          <h1 className="text-3xl font-bold text-slate-900">Piyasalar</h1>
+
+          <p className="mt-2 text-slate-600">
+            Tüm altın ve döviz verilerini canlı olarak görüntüle.
+          </p>
+
           <p className="mt-1 text-sm text-slate-500">
-            Canlı Altın Fiyatları ve Döviz Kurları Listesi
+            WebSocket durumu: {socketStatus}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 text-xs font-semibold">
-          <span className="rounded-xl bg-blue-50 border border-blue-200/60 px-3 py-1.5 text-blue-700">
-            {currencyCount} Döviz Kuru
-          </span>
-          <span className="rounded-xl bg-amber-50 border border-amber-200/60 px-3 py-1.5 text-amber-700">
-            {goldCount} Altın Çeşidi
-          </span>
-        </div>
+        <select
+          value={selectedType}
+          onChange={(event) => setSelectedType(event.target.value)}
+          className="rounded-lg border border-slate-300 bg-white px-3 py-2 outline-none focus:border-slate-500"
+        >
+          <option value="all">Tümü</option>
+          <option value="gold">Altın</option>
+          <option value="currency">Döviz</option>
+        </select>
       </div>
 
-      <MarketTable markets={markets} />
+      <MarketTable markets={filteredMarkets} />
     </div>
   );
 }

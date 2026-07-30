@@ -23,8 +23,7 @@ function History() {
         setSymbols(symbolList);
 
         if (symbolList.length > 0) {
-          const defaultSym = symbolList.find((s) => s.symbol === "USD") || symbolList[0];
-          setSelectedSymbol(defaultSym.symbol);
+          setSelectedSymbol(symbolList[0].symbol);
         }
       } catch (error) {
         console.error(error);
@@ -40,7 +39,9 @@ function History() {
   }, []);
 
   useEffect(() => {
-    if (!selectedSymbol) return;
+    if (!selectedSymbol) {
+      return;
+    }
 
     const fetchHistory = async () => {
       try {
@@ -68,88 +69,61 @@ function History() {
     return <ErrorMessage message={errorMessage} />;
   }
 
-  const activeSymbolObj = symbols.find((s) => s.symbol === selectedSymbol);
-  const latestRecord = historyData.length > 0 ? historyData[historyData.length - 1] : null;
-
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-2xl bg-white p-6 border border-slate-200 shadow-xs">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Piyasa Grafikleri
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Altın ve Döviz kurlarının zamana göre değişim analizleri
-          </p>
-        </div>
+    <div>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold text-slate-900">
+          Geçmiş Grafik
+        </h1>
 
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 text-xs font-semibold text-slate-600">
-          {[
-            { id: "1d", label: "Son 1 Gün" },
-            { id: "7d", label: "Son 7 Gün" },
-            { id: "30d", label: "Son 30 Gün" },
-          ].map((range) => (
-            <button
-              key={range.id}
-              onClick={() => setSelectedRange(range.id)}
-              className={`rounded-lg px-3.5 py-1.5 transition-all ${
-                selectedRange === range.id
-                  ? "bg-white text-slate-900 shadow-xs"
-                  : "hover:text-slate-900"
-              }`}
-            >
-              {range.label}
-            </button>
-          ))}
-        </div>
+        <p className="mt-2 text-slate-600">
+          Son 30 güne ait piyasa verilerini grafik olarak görüntüle.
+        </p>
       </div>
 
-      <div className="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:items-end">
-          <div className="md:col-span-2">
-            <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-slate-500">
-              Enstrüman Seç
-            </label>
+      <div className="mb-6 grid grid-cols-1 gap-4 rounded-xl border border-slate-200 bg-white p-5 shadow-sm md:grid-cols-2">
+        <div>
+          <label className="mb-2 block font-medium text-slate-700">
+            Ürün Seç
+          </label>
 
-            <select
-              value={selectedSymbol}
-              onChange={(e) => setSelectedSymbol(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-sm font-semibold text-slate-900 outline-none transition-all focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-100"
-            >
-              {symbols.map((sym) => (
-                <option key={sym.symbol} value={sym.symbol}>
-                  {sym.symbol} - {sym.name} ({sym.typeLabel})
-                </option>
-              ))}
-            </select>
-          </div>
+          <select
+            value={selectedSymbol}
+            onChange={(event) => setSelectedSymbol(event.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+          >
+            {symbols.map((symbol) => (
+              <option key={symbol.symbol} value={symbol.symbol}>
+                {symbol.name}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {latestRecord && (
-            <div className="rounded-xl bg-slate-50 border border-slate-100 p-3 text-right">
-              <span className="text-xs text-slate-400 font-medium">Son Güncellenen Satış Fiyatı</span>
-              <p className="text-lg font-bold text-indigo-600 tabular-nums">
-                {latestRecord.sellPrice.toLocaleString("tr-TR", {
-                  minimumFractionDigits: 2,
-                  maximumFractionDigits: 4,
-                })}{" "}
-                ₺
-              </p>
-            </div>
-          )}
+        <div>
+          <label className="mb-2 block font-medium text-slate-700">
+            Zaman Aralığı
+          </label>
+
+          <select
+            value={selectedRange}
+            onChange={(event) => setSelectedRange(event.target.value)}
+            className="w-full rounded-lg border border-slate-300 px-3 py-2 outline-none focus:border-slate-500"
+          >
+            <option value="1d">Son 1 Gün</option>
+            <option value="7d">Son 7 Gün</option>
+            <option value="30d">Son 30 Gün</option>
+          </select>
         </div>
       </div>
 
       {errorMessage && <ErrorMessage message={errorMessage} />}
 
-      <div>
+      <div className="mt-6">
         {historyLoading ? (
           <Loading text="Grafik verisi yükleniyor..." />
         ) : (
-          <PriceChart
-            data={historyData}
-            range={selectedRange}
-            title={`${activeSymbolObj ? `${activeSymbolObj.name} (${activeSymbolObj.symbol})` : selectedSymbol} Fiyat Grafiği`}
-          />
+          <PriceChart data={historyData} />
         )}
       </div>
     </div>

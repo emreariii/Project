@@ -12,7 +12,7 @@ function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
 
-  const { liveData, socketStatus, statusText, lastUpdate } = useMarketSocket();
+  const { liveData, socketStatus } = useMarketSocket();
 
   useEffect(() => {
     const fetchMarkets = async () => {
@@ -22,7 +22,7 @@ function Dashboard() {
       } catch (error) {
         console.error(error);
         setErrorMessage(
-          "Piyasa verileri alınamadı. Backend sunucusunun (http://localhost:8080) çalıştığından emin olun."
+          "Piyasa verileri alınamadı. Backend çalışıyor mu kontrol edin."
         );
       } finally {
         setLoading(false);
@@ -38,16 +38,10 @@ function Dashboard() {
     }
   }, [liveData]);
 
-  const benchmarkSymbols = ["USD", "EUR", "GA", "PC"];
-  const featuredMarkets = benchmarkSymbols
-    .map((sym) => markets.find((m) => m.symbol === sym))
-    .filter(Boolean);
-
-  const fallbackMarkets =
-    featuredMarkets.length >= 4 ? featuredMarkets : markets.slice(0, 4);
+  const featuredMarkets = markets.slice(0, 4);
 
   if (loading) {
-    return <Loading text="Piyasa verileri yükleniyor..." />;
+    return <Loading text="Dashboard verileri yükleniyor..." />;
   }
 
   if (errorMessage) {
@@ -55,41 +49,24 @@ function Dashboard() {
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between rounded-2xl bg-white p-6 border border-slate-200 shadow-xs">
+    <div>
+      <div className="mb-6 flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-            Piyasa Dashboard
-          </h1>
-          <p className="mt-1 text-sm text-slate-500">
-            Canlı Altın Fiyatları ve Döviz Kurları Takip Ekranı
+          <h1 className="text-3xl font-bold text-slate-900">Dashboard</h1>
+
+          <p className="mt-2 text-slate-600">
+            Canlı altın, döviz ve borsa verilerini buradan takip edebilirsin.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="inline-flex items-center gap-2 rounded-xl bg-slate-50 border border-slate-200 px-3.5 py-2 text-xs font-semibold">
-            <span
-              className={`h-2.5 w-2.5 rounded-full ${
-                socketStatus === "connected"
-                  ? "bg-emerald-500 animate-pulse"
-                  : socketStatus === "connecting"
-                  ? "bg-amber-500 animate-ping"
-                  : "bg-rose-500"
-              }`}
-            ></span>
-            <span className="text-slate-700">{statusText}</span>
-          </div>
-
-          {lastUpdate && (
-            <div className="hidden sm:block text-xs font-medium text-slate-500 bg-slate-50 border border-slate-200 px-3 py-2 rounded-xl">
-              Son Güncelleme: <span className="font-bold text-slate-800">{lastUpdate}</span>
-            </div>
-          )}
+        <div className="rounded-lg bg-white px-4 py-2 text-sm shadow-sm">
+          WebSocket:{" "}
+          <span className="font-semibold text-slate-900">{socketStatus}</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {fallbackMarkets.map((market) => (
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {featuredMarkets.map((market) => (
           <MarketCard
             key={market.symbol}
             title={market.name}
@@ -97,13 +74,13 @@ function Dashboard() {
             buyPrice={market.buyPrice}
             sellPrice={market.sellPrice}
             changePercent={market.changePercent}
-            trend={market.trend}
-            typeLabel={market.typeLabel}
           />
         ))}
       </div>
 
-      <MarketTable markets={markets} />
+      <div className="mt-6">
+        <MarketTable markets={markets} />
+      </div>
     </div>
   );
 }
